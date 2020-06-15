@@ -40,7 +40,7 @@ function toMinute(hour) {
 d3.csv("TimeUse.csv")
 	.row( (d,i) => {
 		return {
-			sexe: d.SEX,
+			sex: d.SEX,
 			country: d["GEO/ACLOO"],
 			total: toMinute(d.Total),
 			personalCare :toMinute(d['Personal care']),
