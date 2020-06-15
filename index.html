@@ -31,16 +31,93 @@ var path = d3.geo.path()
 
 var g = svg.append("g");
 
+// Import data
+function toMinute(hour) {
+	var a = hour.split(":");
+	var minutes = 60*a[0] + 1*a[1];
+	return minutes;
+}
+d3.csv("TimeUse.csv")
+	.row( (d,i) => {
+		return {
+			sexe: d.SEX,
+			country: d["GEO/ACLOO"],
+			total: toMinute(d.Total),
+			personalCare :toMinute(d['Personal care']),
+			sleep:toMinute(d.Sleep),
+			eating:toMinute(d.Eating),
+			other : toMinute(d["Other and/or unspecified personal care"]),
+			job: toMinute(d["Employment, related activities and travel as part of/during main and second job"]),
+			jobbis: toMinute(d["Main and second job and related travel"]),
+			joblinked:toMinute(d["Activities related to employment and unspecified employment"]),
+			study : toMinute(d.Study),
+			school: toMinute(d["School and university except homework"]),
+			homework: toMinute(d.Homework),
+			freeTime: toMinute(d["Free time study"]),
+			householdAndFamilyCare: toMinute(d["Household and family care"]),
+			food: toMinute(d["Food management except dish washing"]),
+			dishWashing: toMinute(d["Dish washing"]),
+			cleaningDwelling: toMinute(d["Cleaning dwelling"]),
+			householdUpkeep: toMinute(d["Household upkeep except cleaning dwelling"]),
+			laundry: toMinute(d.Laundry),
+			ironing: toMinute(d.Ironing),
+			handicraft: toMinute(d["Handicraft and producing textiles and other care for textiles"]),
+			otherPetCare: toMinute(d["Gardening; other pet care"]),
+			tendingAnimals: toMinute(d["Tending domestic animals"]),
+			pets : toMinute(d["Caring for pets"]),
+			walkingDog: toMinute(d["Walking the dog"]),
+			construction: toMinute(d["Construction and repairs "]),
+			shopping: toMinute(d["Shopping and services"]),
+			childcare: toMinute(d["Childcare, except teaching, reading and talking"]),
+			teachingChild: toMinute(d["Teaching, reading and talking with child"]),
+			household: toMinute(d["Household management and help family member"]),
+			associative: toMinute(d["Leisure, social and associative life"]),
+			organisational: toMinute(d["Organisational work"]),
+			help: toMinute(d["Informal help to other households"]),
+			participatory: toMinute(d["Participatory activities"]),
+			visiting: toMinute(d["Visiting and feasts"]),
+			otherSocial: toMinute(d["Other social life"]),
+			entertainment: toMinute(d["Entertainment and culture"]),
+			resting: toMinute(d.Resting),
+			walking: toMinute(d["Walking and hiking"]),
+			sport: toMinute(d["Sports and outdoor activities except walking and hiking"]),
+			computerGames : toMinute(d["Computer games"]),
+			computing: toMinute(d.Computing),
+			hobbies: toMinute(d["Hobbies and games except computing and computer games"]),
+			books: toMinute(d["Reading books"]),
+			otherReading: toMinute(d["Reading, except books"]),
+			tv: toMinute(d["TV and video"]),
+			radio: toMinute(d["Radio and music"]),
+			otherLeisure: toMinute(d["Unspecified leisure "]),
+			travel: toMinute(d["Travel except travel related to jobs"]),
+			workToTravel: toMinute(d["Travel to/from work"]),
+			studyTravel: toMinute(d["Travel related to study"]),
+			shoppingTravel: toMinute(d["Travel related to shopping and services"]),
+			childTransport: toMinute(d["Transporting a child"]),
+			otherHouseholdTravel: toMinute(d["Travel related to other household purposes"]),
+			leisureTravel: toMinute(d["Travel related to leisure, social and associative life"]),
+			otherTravel: toMinute(d["Unspecified travel"]),
+			unspecified: toMinute(d["Unspecified time use"])
+		};
+	})
+	.get( (error, rows) => {
+		console.log(rows.length+ " rows imported");
+		console.log(rows[0]);
+		console.log(rows[rows.length -1]);
+	});
+
+
+var color = d3.scale.category10();
+
 // load and display the World
 d3.json("world-110m2.json", function(error, topology) {
-
-
 g.selectAll("path")
       .data(topojson.object(topology, topology.objects.countries)
           .geometries)
     .enter()
       .append("path")
       .attr("d", path)
+	  .style("fill",function (d,i) { return color(i) })
 });
 
 // zoom and pan
