@@ -37,6 +37,9 @@ function toMinute(hour) {
 	var minutes = 60*a[0] + 1*a[1];
 	return minutes;
 }
+var maleData = {};
+var femaleData = {};
+
 d3.csv("TimeUse.csv")
 	.row( (d,i) => {
 		return {
@@ -101,14 +104,49 @@ d3.csv("TimeUse.csv")
 		};
 	})
 	.get( (error, rows) => {
-		console.log(rows.length+ " rows imported");
+
+		rows.forEach(function(d){
+			console.log("ok");
+			console.log(d.country);
+			if(d.sex = "Males"){
+				maleData[d.country] = d;}
+			else{
+				femaleData[d.country] = d;}
+		});
+		console.log(rows.length+ " data rows imported");
 		console.log(rows[0]);
 		console.log(rows[rows.length -1]);
 	});
 
 
+// Import country Names
+var countryNames = {};
+d3.tsv("world-110m-country-names.tsv",function(error,rows){
+
+	rows.forEach(function(d){
+		if(d.id>=1){
+			countryNames[d.id] = d.name;
+		}
+	});
+});
+
+
 var color = d3.scale.category10();
 
+// THE FUNCTION TO CHANGE TO DISPLAY DATA
+function getColor(d) {
+	var id = d.id;
+	if (id>=1){
+			var name = countryNames[id];
+			if(name in maleData){
+				var result = maleData[name].resting;
+				if (result!=null){
+					return (d3.rgb(10*result,0,0));}
+			}
+		}
+
+	return(d3.rgb(150,150,150));
+}
 // load and display the World
 d3.json("world-110m2.json", function(error, topology) {
 g.selectAll("path")
@@ -117,7 +155,7 @@ g.selectAll("path")
     .enter()
       .append("path")
       .attr("d", path)
-	  .style("fill",function (d,i) { return color(i) })
+	  .style("fill",function (d,i) { return getColor(d) })
 });
 
 // zoom and pan
