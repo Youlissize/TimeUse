@@ -12,6 +12,24 @@ path {
 }
 </style>
 <body>
+	<div class="buttons">
+		<button type="button" name="button"></button>
+
+		<select id="categorySelect" onchange="updateMap()">
+			<option value="personalCare">personalCare</option>
+			<option value="sleep">sleep</option>
+			<option value="resting">resting</option>
+			<option value="aaa">TO Continue</option>
+		</select>
+	</div>
+
+
+
+
+
+
+
+
 <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
 <script src="https://d3js.org/topojson.v0.min.js"></script>
 <script>
@@ -106,16 +124,12 @@ d3.csv("TimeUse.csv")
 	.get( (error, rows) => {
 
 		rows.forEach(function(d){
-			console.log("ok");
-			console.log(d.country);
 			if(d.sex = "Males"){
 				maleData[d.country] = d;}
 			else{
 				femaleData[d.country] = d;}
 		});
 		console.log(rows.length+ " data rows imported");
-		console.log(rows[0]);
-		console.log(rows[rows.length -1]);
 	});
 
 
@@ -131,15 +145,17 @@ d3.tsv("world-110m-country-names.tsv",function(error,rows){
 });
 
 
-var color = d3.scale.category10();
 
 // THE FUNCTION TO CHANGE TO DISPLAY DATA
 function getColor(d) {
 	var id = d.id;
 	if (id>=1){
-			var name = countryNames[id];
-			if(name in maleData){
-				var result = maleData[name].resting;
+			var country = countryNames[id];
+			var category = document.getElementById("categorySelect").value;
+
+			if(country in maleData){
+				//var result = maleData[country].resting;
+				var result = maleData[country][category];
 				if (result!=null){
 					return (d3.rgb(10*result,0,0));}
 			}
@@ -148,15 +164,25 @@ function getColor(d) {
 	return(d3.rgb(150,150,150));
 }
 // load and display the World
+var map;
 d3.json("world-110m2.json", function(error, topology) {
-g.selectAll("path")
+
+map = g.selectAll("path")
       .data(topojson.object(topology, topology.objects.countries)
-          .geometries)
-    .enter()
+          .geometries);
+map.enter()
       .append("path")
       .attr("d", path)
 	  .style("fill",function (d,i) { return getColor(d) })
 });
+
+function updateMap() {
+	map.exit().remove();
+	map.enter()
+	      .append("path")
+	      .attr("d", path)
+		  .style("fill",function (d,i) { return getColor(d) });
+}
 
 // zoom and pan
 var zoom = d3.behavior.zoom()
