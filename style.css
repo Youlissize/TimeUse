@@ -1,0 +1,11 @@
+#data {
+	display :flex;
+	flex-direction: row;
+	align-items:center;
+}
+
+path {
+  stroke: white;
+  stroke-width: 0.25px;
+  fill: grey;
+}

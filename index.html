@@ -4,15 +4,10 @@
 	<title>Time Use</title>
 </head>
 <meta charset="utf-8">
-<style>
-path {
-  stroke: white;
-  stroke-width: 0.25px;
-  fill: grey;
-}
-</style>
+<link rel="stylesheet" type="text/css" href="style.css" media="all"/>
+
 <body>
-	<div class="buttons">
+	<div id="buttonsBar">
 		<button type="button" name="button"></button>
 
 		<select id="categorySelect" onchange="updateMap()">
@@ -20,8 +15,28 @@ path {
 			<option value="Sleeping">Sleeping</option>
 			<option value="Eating">Eating</option>
 			<option value="Resting">Resting</option>
-			<option value="aaa">TO Continue</option>
+			<option value="Job">Job</option>
+			<option value="Household">Household</option>
+			<option value="Shopping">Shopping</option>
+			<option value="Studying">Studying</option>
+			<option value="Animals">Animals</option>
+			<option value="Travels">Travels</option>
+			<option value="Social life">Social life</option>
+			<option value="Sport and walking">Sport and walking</option>
+			<option value="Resting">Resting</option>
+			<option value="Leisures">Leisures</option>
+			<option value="Childcare">Childcare</option>
+			<option value="Unspecified">Unspecified</option>
 		</select>
+	</div >
+	<div id="data">
+		<div>
+			<p></p>
+		</div>
+		<div id="details">
+
+			France : bla bla bla...
+		</div>
 	</div>
 
 
@@ -41,7 +56,7 @@ var projection = d3.geo.mercator()
     .scale(500)
 	.translate([200,800]);
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("p").append("svg")
     .attr("width", width)
     .attr("height", height);
 
@@ -125,7 +140,7 @@ d3.csv("TimeUse.csv")
 	.get( (error, rows) => {
 
 		rows.forEach(function(d){
-			if(d.sex = "Males"){
+			if(d.sex == "Males"){
 				maleData[d.country] = d;}
 			else{
 				femaleData[d.country] = d;}
@@ -137,9 +152,9 @@ var metaCategories = {
 	"Personal care" :["personalCare"],
 	"Sleeping" :["sleep"],
 	"Eating":["eating"],
-	"Job":["job","jobbis","jobrelated"],
+	"Job":["job","jobbis","joblinked"],
 	"Studying":["study","school","homework"],
-	"Household": ["householdAndFamilyCare","food","household","help","dishwashing","cleaningDwelling","householdUpkeep","laundry","ironing","handicraft","organisational","construction"],
+	"Household": ["householdAndFamilyCare","food","household","help","dishWashing","cleaningDwelling","householdUpkeep","laundry","ironing","handicraft","organisational","construction"],
 	"Animals":["tendingAnimals","pets","otherPetCare","walkingDog"],
 	"Travels":["travel","workToTravel","shoppingTravel","studyTravel","childTransport","otherHouseholdTravel","leisureTravel","otherTravel"],
 	"Social life": ["associative","participatory","visiting","otherSocial"],
@@ -153,7 +168,7 @@ var metaCategories = {
 
 
 // Import country Names
-//var countryNames = {};
+// and Compute min and max for each category
 var countryNames = {};
 var minValues = {};
 var maxValues = {};
@@ -169,7 +184,6 @@ d3.tsv("world-110m-country-names.tsv",function(error,rows){
 	  var minV = 1440;
 	  for (var id in countryNames){
 
-		  console.log("aaaaaaaaaaaaa id = ",id);
 		  if(id>=1){
 			  var country = countryNames[id]
 
@@ -186,7 +200,7 @@ d3.tsv("world-110m-country-names.tsv",function(error,rows){
 				  }
 				  if(country in femaleData){
 					  d ++;
-					  for(subcategory in metaCategories[category]){
+					  for(ind in metaCategories[category]){
 						  subcategory = metaCategories[category][ind];
 						  result += femaleData[country][subcategory];
 					  }
@@ -197,59 +211,12 @@ d3.tsv("world-110m-country-names.tsv",function(error,rows){
 			  }
 		  }
 	  }
-	  console.log(minV,maxV);
 	  minValues[category] = minV;
 	  maxValues[category] = maxV;
 	}
 });
 
 
-
-// Compute min and max for each category
-/*
-
-
-for(var category in metaCategories) {
-  //var subC = metaCategories[metaC];
-  var maxV = 0;
-  var minV = 1440;
-  for (var id in countryNames){
-
-	  console.log("aaaaaaaaaaaaa id = ",id);
-	  if(id>=1){
-		  var country = countryNames[id]
-
-		  if ((country in maleData) || (country in femaleData))  {
-			  var result = 0.;
-			  var subcategory;
-			  var d=0.;
-			  if(country in maleData){
-				  d ++;
-				  for(ind in metaCategories[category]){
-					  subcategory = metaCategories[category][ind];
-					  result += maleData[country][subcategory];
-				  }
-			  }
-			  if(country in femaleData){
-				  d ++;
-				  for(subcategory in metaCategories[category]){
-					  subcategory = metaCategories[category][ind];
-					  result += femaleData[country][subcategory];
-				  }
-			  }
-			  result = result/d; //take the average between men and women if it can
-			  maxV = max(maxV,result);
-			  minV = min(minV,result);
-		  }
-	  }
-  }
-  console.log(minV,maxV);
-  minValues[category] = minV;
-  maxValues[category] = maxV;
-}
-
-
-*/
 
 
 
@@ -306,6 +273,9 @@ map.enter()
       .append("path")
       .attr("d", path)
 	  .style("fill",function (d,i) { return getColor(d) })
+	  .on("mouseover",function(d,i) {
+			displayDetails(d,i);
+			});
 });
 
 function updateMap() {
@@ -313,9 +283,55 @@ function updateMap() {
 	map.enter()
 	      .append("path")
 	      .attr("d", path)
-		  .style("fill",function (d,i) { return getColor(d) });
+		  .style("fill",function (d,i) { return getColor(d) })
+		  .on("mouseover",function(d,i) {
+				displayDetails(d,i);
+				});
 }
 
+function displayDetails(d,i){
+	var text = "";
+	country = countryNames[d.id];
+	text += country;
+	text += "<br/>";
+	if ((country in maleData) || (country in femaleData))  {
+		var category = document.getElementById("categorySelect").value;
+
+		var totalMen = 0;
+		var totalWomen = 0;
+		var subcategory;
+		text +="<br/>Men :<br/>"
+		if(country in maleData){
+			for(ind in metaCategories[category]){
+				subcategory = metaCategories[category][ind];
+				totalMen += maleData[country][subcategory];
+				text += subcategory + " : "+ maleData[country][subcategory]+" min <br/>";
+			}
+			text += "Total : "+totalMen+" min<br/>"
+		}
+		else {
+			text += "No Data for Men"
+		}
+		text +="<br/>Women :<br/>"
+		if(country in femaleData){
+			for(ind in metaCategories[category]){
+				subcategory = metaCategories[category][ind];
+				totalWomen += femaleData[country][subcategory];
+				text += subcategory + " : "+ femaleData[country][subcategory]+" min <br/>";
+			}
+			text += "Total : "+totalWomen+" min<br/>"
+		}
+		else {
+			text += "No Data for women";
+		}
+
+
+	}
+
+	else{text += "No data";}
+
+	document.getElementById("details").innerHTML = text;
+}
 // zoom and pan
 var zoom = d3.behavior.zoom()
     .on("zoom",function() {
@@ -329,6 +345,7 @@ var zoom = d3.behavior.zoom()
   });
 
 svg.call(zoom)
+
 
 </script>
 </body>
