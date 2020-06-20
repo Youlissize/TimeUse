@@ -16,9 +16,10 @@ path {
 		<button type="button" name="button"></button>
 
 		<select id="categorySelect" onchange="updateMap()">
-			<option value="personalCare">personalCare</option>
-			<option value="sleep">sleep</option>
-			<option value="resting">resting</option>
+			<option value="Personal care">Personal care</option>
+			<option value="Sleeping">Sleeping</option>
+			<option value="Eating">Eating</option>
+			<option value="Resting">Resting</option>
 			<option value="aaa">TO Continue</option>
 		</select>
 	</div>
@@ -30,7 +31,7 @@ path {
 
 
 
-<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+<script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
 <script src="https://d3js.org/topojson.v0.min.js"></script>
 <script>
 var width = 900,
@@ -132,36 +133,167 @@ d3.csv("TimeUse.csv")
 		console.log(rows.length+ " data rows imported");
 	});
 
+var metaCategories = {
+	"Personal care" :["personalCare"],
+	"Sleeping" :["sleep"],
+	"Eating":["eating"],
+	"Job":["job","jobbis","jobrelated"],
+	"Studying":["study","school","homework"],
+	"Household": ["householdAndFamilyCare","food","household","help","dishwashing","cleaningDwelling","householdUpkeep","laundry","ironing","handicraft","organisational","construction"],
+	"Animals":["tendingAnimals","pets","otherPetCare","walkingDog"],
+	"Travels":["travel","workToTravel","shoppingTravel","studyTravel","childTransport","otherHouseholdTravel","leisureTravel","otherTravel"],
+	"Social life": ["associative","participatory","visiting","otherSocial"],
+	"Sport and walking": ["sport","walking"],
+	"Resting": ["resting"],
+	"Leisures" : ["entertainment","computerGames","computing","hobbies","books","otherReading","tv","radio","otherLeisure"],
+	"Shopping": ["shopping"],
+	"Childcare": ["childcare","teachingChild"],
+	"Unspecified":["other","unspecified"]
+};
+
 
 // Import country Names
+//var countryNames = {};
 var countryNames = {};
+var minValues = {};
+var maxValues = {};
 d3.tsv("world-110m-country-names.tsv",function(error,rows){
-
 	rows.forEach(function(d){
 		if(d.id>=1){
 			countryNames[d.id] = d.name;
 		}
 	});
+	for(var category in metaCategories) {
+	  //var subC = metaCategories[metaC];
+	  var maxV = 0;
+	  var minV = 1440;
+	  for (var id in countryNames){
+
+		  console.log("aaaaaaaaaaaaa id = ",id);
+		  if(id>=1){
+			  var country = countryNames[id]
+
+			  if ((country in maleData) || (country in femaleData))  {
+				  var result = 0.;
+				  var subcategory;
+				  var d=0.;
+				  if(country in maleData){
+					  d ++;
+					  for(ind in metaCategories[category]){
+						  subcategory = metaCategories[category][ind];
+						  result += maleData[country][subcategory];
+					  }
+				  }
+				  if(country in femaleData){
+					  d ++;
+					  for(subcategory in metaCategories[category]){
+						  subcategory = metaCategories[category][ind];
+						  result += femaleData[country][subcategory];
+					  }
+				  }
+				  result = result/d; //take the average between men and women if it can
+				  maxV = Math.max(maxV,result);
+				  minV = Math.min(minV,result);
+			  }
+		  }
+	  }
+	  console.log(minV,maxV);
+	  minValues[category] = minV;
+	  maxValues[category] = maxV;
+	}
 });
 
 
 
-// THE FUNCTION TO CHANGE TO DISPLAY DATA
+// Compute min and max for each category
+/*
+
+
+for(var category in metaCategories) {
+  //var subC = metaCategories[metaC];
+  var maxV = 0;
+  var minV = 1440;
+  for (var id in countryNames){
+
+	  console.log("aaaaaaaaaaaaa id = ",id);
+	  if(id>=1){
+		  var country = countryNames[id]
+
+		  if ((country in maleData) || (country in femaleData))  {
+			  var result = 0.;
+			  var subcategory;
+			  var d=0.;
+			  if(country in maleData){
+				  d ++;
+				  for(ind in metaCategories[category]){
+					  subcategory = metaCategories[category][ind];
+					  result += maleData[country][subcategory];
+				  }
+			  }
+			  if(country in femaleData){
+				  d ++;
+				  for(subcategory in metaCategories[category]){
+					  subcategory = metaCategories[category][ind];
+					  result += femaleData[country][subcategory];
+				  }
+			  }
+			  result = result/d; //take the average between men and women if it can
+			  maxV = max(maxV,result);
+			  minV = min(minV,result);
+		  }
+	  }
+  }
+  console.log(minV,maxV);
+  minValues[category] = minV;
+  maxValues[category] = maxV;
+}
+
+
+*/
+
+
+
+
+var colorScale = d3.scale.linear()
+  .domain([0, 100])
+  .range([d3.rgb(0,200,0),"blue"]);
+
+
 function getColor(d) {
 	var id = d.id;
 	if (id>=1){
-			var country = countryNames[id];
-			var category = document.getElementById("categorySelect").value;
 
-			if(country in maleData){
-				//var result = maleData[country].resting;
-				var result = maleData[country][category];
-				if (result!=null){
-					return (d3.rgb(10*result,0,0));}
+			var country = countryNames[id];
+			//console.log(id,country);
+			var category = document.getElementById("categorySelect").value;
+			//set color scale domain ..
+
+			if ((country in maleData) || (country in femaleData))  {
+				var result = 0.;
+				var subcategory;
+				var d=0.;
+				if(country in maleData){
+					d ++;
+					for(ind in metaCategories[category]){
+						subcategory = metaCategories[category][ind];
+						result += maleData[country][subcategory];
+					}
+				}
+				if(country in femaleData){
+					d ++;
+					for(ind in metaCategories[category]){
+						subcategory = metaCategories[category][ind];
+						result += femaleData[country][subcategory];
+					}
+				}
+				result = result/d; //take the average between men and women if it can
+				colorScale.domain([minValues[category],maxValues[category]]);
+				//console.log(result," / ",minValues[country]," / ",maxValues[country]);
+				return (colorScale(result));
 			}
 		}
 
-	return(d3.rgb(150,150,150));
+	return(d3.rgb(150,150,150)); //No data found
 }
 // load and display the World
 var map;
