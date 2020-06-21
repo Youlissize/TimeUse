@@ -14,9 +14,7 @@ path {
   stroke: black;
   stroke-width: 0.25px;
 }
-#details {
-	margin-left: 30px;
-}
+
 
 .topBar {
 	display: flex;
@@ -42,6 +40,24 @@ path {
 	align-items: center;
 	margin-top: 15px;
 	margin-left: 50px;
+}
 
+#details {
+	margin-left: 30px;
+	display: flex;
+	flex-direction: column;
+}
 
+#country {
+	margin: 40px;
+	font-size: 20px;
+}
+
+.pieChart{
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+}
+.gender{
+	margin: 20px;
 }
