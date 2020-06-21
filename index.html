@@ -63,7 +63,7 @@
 
 			<div class="pieChart">
 				<div class="leftChart">
-					<div class="gender">
+					<div class="gender" id="mgender">
 						Men
 					</div>
 					<svg id="menChart" width="200" height="200">
@@ -71,7 +71,7 @@
 					</svg>
 				</div>
 				<div class="rightChart">
-					<div class="gender">
+					<div class="gender" id="wgender">
 						Women
 					</div>
 					<svg id="womenChart" width="200" height="200">
@@ -80,15 +80,11 @@
 				</div>
 
 			</div>
-			<div class="legend">
-				THIS IS A LEGEND<br/>
-				BLA BLA BLA
+			<div id="legend" class="legend">
+
 			</div>
 		</div>
 	</div>
-
-
-
 
 
 
@@ -98,7 +94,7 @@
 <script src="https://d3js.org/topojson.v0.min.js"></script>
 <script>
 var width = 600,
-    height = 500;
+    height = 600;
 
 var projection = d3.geo.mercator()
     .scale(500)
@@ -272,7 +268,7 @@ var longNames = {
 	unspecified: "Unspecified time use"
 }
 
-
+var color = d3.scale.category10();
 // Import country Names
 // and Compute min and max for each category
 var countryNames = {};
@@ -398,6 +394,18 @@ function updateMap() {
 	document.getElementById("min").innerHTML = " Minimum<br/>"+Math.round(minValues[category])+" minutes";
 	document.getElementById("max").innerHTML = " Maximum<br/>"+Math.round(maxValues[category])+" minutes";
 
+
+
+	//Update legend
+	var legendDiv = document.getElementById("legend");
+	legendDiv.innerHTML = ""; //clear
+
+	for(var i=0; i<metaCategories[category].length; i++){
+		var svg = "<svg height='15' width='15'><rect width='15' height='15' fill='"+color(i)+"' /></svg>"
+
+		legendDiv.innerHTML += "<div class='legendLigne'>"+"<div>"+svg+"</div>"+"<div class='legendcat'> "+longNames[metaCategories[category][i]]+"</div>"+"</div>";
+		//text =+ "<div>"+legend[i]+"</div>";
+	}
 }
 /*
 var menChart = d3.select("#menChart"),
@@ -423,6 +431,7 @@ marcs.enter().append("path")
 		.attr("d", marc);*/
 
 
+
 function displayDetails(d,i){
 	var text = "";
 	country = countryNames[d.id];
@@ -443,6 +452,7 @@ function displayDetails(d,i){
 				totalMen += maleData[country][subcategory];
 				mendata.push(maleData[country][subcategory]);
 				legend.push(longNames[subcategory]);
+
 			}
 		}
 		if(country in femaleData){
@@ -454,6 +464,8 @@ function displayDetails(d,i){
 		}
 	}
 
+	document.getElementById("mgender").innerHTML = "Men<br/>"+totalMen+" min";
+	document.getElementById("wgender").innerHTML = "Women<br/>"+totalWomen+" min";
 	// Update pie charts
 /*
 	var mpath = menChart.selectAll("path");
@@ -461,13 +473,12 @@ function displayDetails(d,i){
     mpath.attr("d",marc);
 */
 	var menChart = d3.select("#menChart"),
-		width = menChart.attr("width") * totalMen/(totalMen+totalWomen),
-		height = menChart.attr("height") * totalMen/(totalMen+totalWomen),
-		radius = 1.3 * Math.min(width, height) / 2,
+		width = menChart.attr("width") * Math.sqrt(totalMen/(totalMen+totalWomen)),
+		height = menChart.attr("height") * Math.sqrt(totalMen/(totalMen+totalWomen)),
+		radius = 1.0 * Math.min(width, height) / 2,
 		g = menChart.append("g").attr("transform", "translate(" + 100 + "," + 100 + ")");
 
-	var color = d3.scale.category20();
-	var menPie = d3.layout.pie();
+	var menPie = d3.layout.pie().sort(null);
 	var marc = d3.svg.arc()
 				.innerRadius(0)
 				.outerRadius(radius);
@@ -486,9 +497,9 @@ function displayDetails(d,i){
 
 
 	var womenChart = d3.select("#womenChart"),
-		wwidth = womenChart.attr("width")* totalWomen/(totalMen+totalWomen),
-        wheight = womenChart.attr("height") * totalWomen/(totalMen+totalWomen),
-        wradius = 1.3* Math.min(wwidth, wheight) / 2,
+		wwidth = womenChart.attr("width")* Math.sqrt(totalWomen/(totalMen+totalWomen)),
+        wheight = womenChart.attr("height") * Math.sqrt(totalWomen/(totalMen+totalWomen)),
+        wradius = 1.0* Math.min(wwidth, wheight) / 2,
         g = womenChart.append("g").attr("transform", "translate(" + 100 + "," + 100 + ")");
 
 	var womenPie = d3.layout.pie();
@@ -505,6 +516,7 @@ function displayDetails(d,i){
 			    return color(i);
 			})
 			.attr("d", warc);
+
 
 }
 // zoom and pan
