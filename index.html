@@ -10,26 +10,27 @@
 	<div class="topBar">
 		<div class="Title">
 			How much time do we spend on ...
+
+			<select id="categorySelect" class="browser-default custom-select" onchange="updateMap()">
+					<option value="Personal care">Personal care</option>
+					<option value="Sleeping">Sleeping</option>
+					<option value="Eating">Eating</option>
+					<option value="Resting">Resting</option>
+					<option value="Job">Job</option>
+					<option value="Household">Household</option>
+					<option value="Shopping">Shopping</option>
+					<option value="Studying">Studying</option>
+					<option value="Animals">Animals</option>
+					<option value="Travels">Travels</option>
+					<option value="Social life">Social life</option>
+					<option value="Sport and walking">Sport and walking</option>
+					<option value="Resting">Resting</option>
+					<option value="Leisures">Leisures</option>
+					<option value="Childcare">Childcare</option>
+					<option value="Unspecified">Unspecified</option>
+				</select>
 		</div>
 
-		<select id="categorySelect" onchange="updateMap()">
-			<option value="Personal care">Personal care</option>
-			<option value="Sleeping">Sleeping</option>
-			<option value="Eating">Eating</option>
-			<option value="Resting">Resting</option>
-			<option value="Job">Job</option>
-			<option value="Household">Household</option>
-			<option value="Shopping">Shopping</option>
-			<option value="Studying">Studying</option>
-			<option value="Animals">Animals</option>
-			<option value="Travels">Travels</option>
-			<option value="Social life">Social life</option>
-			<option value="Sport and walking">Sport and walking</option>
-			<option value="Resting">Resting</option>
-			<option value="Leisures">Leisures</option>
-			<option value="Childcare">Childcare</option>
-			<option value="Unspecified">Unspecified</option>
-		</select>
 
 		<div class="scale">
 			<div class="min" id="min">
@@ -39,8 +40,8 @@
 				<svg height="30" width="300">
 				 <defs>
 				   <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-					 <stop offset="0%" style="stop-color:rgb(0,200,0);stop-opacity:1" />
-					 <stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1" />
+					 <stop offset="0%" style="stop-color:rgb(255, 171, 145);stop-opacity:1" />
+					 <stop offset="100%" style="stop-color:rgb(255, 60, 0);stop-opacity:1" />
 				   </linearGradient>
 				 </defs>
 				 <rect width="300" height="30" fill="url(#grad1)" />
@@ -56,8 +57,11 @@
 			<p></p>
 		</div>
 		<div id="details">
-			Put your mouse on a country<br/>
-			to see details about the choosen category
+			<!-- Put your mouse on a country<br/>
+			to see details about the choosen category -->
+		</div>
+		<div id="details_chart">
+
 		</div>
 	</div>
 
@@ -70,6 +74,19 @@
 
 <script src="http://d3js.org/d3.v3.js" charset="utf-8"></script>
 <script src="https://d3js.org/topojson.v0.min.js"></script>
+<script src="https://rawgit.com/tpreusse/radar-chart-d3/master/src/radar-chart.js"></script>
+
+<link rel="stylesheet" href="https://rawgit.com/tpreusse/radar-chart-d3/master/src/radar-chart.css">
+
+<!-- Bootstrap dependencies -->
+<!-- CSS only -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+<!-- JS, Popper.js, and jQuery -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+
 <script>
 var width = 800,
     height = 500;
@@ -86,6 +103,11 @@ var path = d3.geo.path()
     .projection(projection);
 
 var g = svg.append("g");
+
+var tooltip = d3.select("body").append("div") 
+        .attr("class", "tooltip")       
+		.style("opacity", 0);
+		
 
 // Import data
 function toMinute(hour) {
@@ -245,7 +267,7 @@ d3.tsv("world-110m-country-names.tsv",function(error,rows){
 
 var colorScale = d3.scale.linear()
   .domain([0, 100])
-  .range([d3.rgb(0,200,0),"blue"]);
+  .range([d3.rgb(255, 171, 145), d3.rgb(255, 60, 0)]);
 
 
 function getColor(d) {
@@ -315,10 +337,163 @@ function updateMap() {
 		.on("mouseover",function(d,i) {
 			displayDetails(d,i);
 			highlightCountry(d, i);
+			updateRadarChart(d, i);
 		})
 		.on("mouseout", handleMouseOut);
 	document.getElementById("min").innerHTML = " Minimum<br/>"+Math.round(minValues[category])+" minutes";
 	document.getElementById("max").innerHTML = " Maximum<br/>"+Math.round(maxValues[category])+" minutes";
+}
+
+// RADAR CHART TEST CODE
+
+// Radar chart initialization
+RadarChart.defaultConfig.radius = 4;
+RadarChart.defaultConfig.w = 400;
+RadarChart.defaultConfig.h = 400;
+RadarChart.defaultConfig.factorLegend = 1;
+
+
+data_final = 	[
+					{className: 'germany',
+					axes: 
+						[
+
+						]
+					}
+				];
+
+var keys = [];
+for (var k in metaCategories){
+	keys.push(k);
+	data_final[0]["axes"].push({axis: k, value: 10});
+}
+
+var data_test = [
+				{
+					className: 'germany', // optional can be used for styling
+					axes: [
+					{axis: "strength", value: 13}, 
+					{axis: "intelligence", value: 6}, 
+					{axis: "charisma", value: 5},  
+					{axis: "dexterity", value: 9},  
+					{axis: "luck", value: 2}
+					]
+				},
+	];
+
+
+var chart = RadarChart.chart();
+var cfg = chart.config(); // retrieve default config
+var chart_svg = d3.select('#details_chart').append('svg')
+			.attr('width', cfg.w + cfg.w + 50)
+			.attr('height', cfg.h + cfg.h / 4)
+			.attr('id', 'id_radar_chart');
+chart_svg.append('g').classed('single', 1).datum(randomDataset()).call(chart);
+
+function randomDataset() {
+
+	return data_final.map(function(d) {
+		return {
+		className: d.className,
+		axes: d.axes.map(function(axis) {
+			return {axis: axis.axis, value: Math.ceil(Math.random() * 10)};
+		})
+		};
+	});
+}
+// // many radars
+// chart.config({w: cfg.w / 4, h: cfg.h / 4, axisText: false, levels: 0, circles: false});
+// cfg = chart.config();
+// function render() {
+// 	var game = svg.selectAll('g.game').data(
+//     [
+//       randomDataset(),
+//       randomDataset(),
+//       randomDataset(),
+//       randomDataset()
+//     ]
+//   );
+//   game.enter().append('g').classed('game', 1);
+//   game
+//     .attr('transform', function(d, i) { return 'translate('+((cfg.w * 4) + 50 + (i * cfg.w))+','+ (cfg.h * 1.3) +')'; })
+//     .call(chart);
+
+//   setTimeout(render, 1000);
+
+// }
+
+// function radarCartTooltip(d, i){
+// 	tooltip.transition()    
+//             .duration(200)    
+//             .style("opacity", .9);    
+//             tooltip.html(d.properties.NAME)  
+//             .style("left", (d3.event.pageX) + "px")   
+//             .style("top", (d3.event.pageY - 28) + "px");  
+// }
+
+function updateRadarChart(d, i){
+	country = countryNames[d.id];
+	var cat_counts = {};
+	var abs_cat_counts = {};
+	total = 0;
+	if ((country in maleData) || (country in femaleData))  {
+		for (var i in keys){
+			category = keys[i];
+			if ((country in maleData) || (country in femaleData))  {
+				var result = 0.;
+				var subcategory;
+				var d=0.;
+				if(country in maleData){
+					d ++;
+					for(ind in metaCategories[category]){
+						subcategory = metaCategories[category][ind];
+						result += maleData[country][subcategory];
+					}
+				}
+				if(country in femaleData){
+					d ++;
+					for(ind in metaCategories[category]){
+						subcategory = metaCategories[category][ind];
+						result += femaleData[country][subcategory];
+					}
+				}
+
+			}
+			abs_cat_counts[category] = result;
+			total += result;
+		}
+		for (var i in keys){
+			category = keys[i];
+			cat_counts[category] = abs_cat_counts[category]/total;
+		}
+		console.log('cat_counts');
+		console.log(cat_counts);
+
+	}
+	function updateDataset() {
+		return data_final.map(function(d) {
+			return {
+			className: d.className,
+			axes: d.axes.map(function(axis) {
+				return {axis: axis.axis, value: cat_counts[axis.axis]};
+			})
+			};
+		});
+		}
+	
+	chart_svg.remove('g')
+	chart_svg = d3.select('#details_chart').append('svg')
+			.attr('width', cfg.w + cfg.w + 50)
+			.attr('height', cfg.h + cfg.h / 4)
+			.attr('id', 'id_radar_chart');
+	console.log('Updated data');
+	console.log(updateDataset());
+	chart_svg.append('g').classed('single', 1).datum(updateDataset()).call(chart);
+	//g.select('#id_radar_chart').datum(updateDataset).call(chart);
+	
+	//chart_svg.append('g').classed('single', 1).datum(randomDataset()).call(chart);
+
+
 }
 
 function highlightCountry(d, i){
@@ -373,8 +548,15 @@ function displayDetails(d,i){
 	}
 
 	else{text += "No data";}
+	
+	tooltip.transition()    
+            .duration(200)    
+            .style("opacity", .9);    
+	tooltip.html(text)  
+	.style("left", (d3.event.pageX) + "px")   
+	.style("top", (d3.event.pageY - 28) + "px"); 
 
-	document.getElementById("details").innerHTML = text;
+	//document.getElementById("details").innerHTML = text;
 }
 // zoom and pan
 var zoom = d3.behavior.zoom()
