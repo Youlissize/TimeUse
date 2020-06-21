@@ -62,21 +62,26 @@
 			</div>
 
 			<div class="pieChart">
-				<div class="leftChart">
+				<div id="leftChart">
 					<div class="gender" id="mgender">
 						Men
 					</div>
-					<svg id="menChart" width="200" height="200">
+					<div id="menChartContainer">
+						<svg id="menChart" width="200" height="200">
 
-					</svg>
+						</svg>
+					</div>
+
 				</div>
-				<div class="rightChart">
+				<div id="rightChart">
 					<div class="gender" id="wgender">
 						Women
 					</div>
-					<svg id="womenChart" width="200" height="200">
+					<div id="womenChartContainer">
+						<svg id="womenChart" width="200" height="200">
 
-					</svg>
+						</svg>
+					</div>
 				</div>
 
 			</div>
@@ -466,12 +471,14 @@ function displayDetails(d,i){
 
 	document.getElementById("mgender").innerHTML = "Men<br/>"+totalMen+" min";
 	document.getElementById("wgender").innerHTML = "Women<br/>"+totalWomen+" min";
+
+	//Clear
+	d3.select("#menChart").remove();
+	document.getElementById("menChartContainer").innerHTML = "<svg id='menChart' width='200' height='200'></svg>";
+	d3.select("#womenChart").remove();
+	document.getElementById("womenChartContainer").innerHTML = "<svg id='womenChart' width='200' height='200'></svg>";
+
 	// Update pie charts
-/*
-	var mpath = menChart.selectAll("path");
-	mpath.data(pie(mendata)); // update the data
-    mpath.attr("d",marc);
-*/
 	var menChart = d3.select("#menChart"),
 		width = menChart.attr("width") * Math.sqrt(totalMen/(totalMen+totalWomen)),
 		height = menChart.attr("height") * Math.sqrt(totalMen/(totalMen+totalWomen)),
