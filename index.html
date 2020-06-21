@@ -287,33 +287,50 @@ function getColor(d) {
 // load and display the World
 var map;
 d3.json("world-110m2.json", function(error, topology) {
-
-map = g.selectAll("path")
-      .data(topojson.object(topology, topology.objects.countries)
-          .geometries);
-map.enter()
-      .append("path")
-      .attr("d", path)
-	  .style("fill",function (d,i) { return getColor(d) })
-	  .on("mouseover",function(d,i) {
-			displayDetails(d,i);
-			});
-});
+	map = g.selectAll("path")
+			.data(topojson.object(topology, topology.objects.countries).geometries);
+	// map.enter()
+    //   .append("path")
+    //   .attr("d", path)
+	//   .style("fill",function (d,i) { return getColor(d) })
+	// //   .on("mouseover",function(d,i) {
+	// // 		displayDetails(d,i);
+	// // 		highlightCountry(d, i);
+	// // 		});
+	});
 
 function updateMap() {
 	var category = document.getElementById("categorySelect").value;
 	colorScale.domain([minValues[category],maxValues[category]]);
 	map.exit().remove();
 	map.enter()
-	      .append("path")
-	      .attr("d", path)
-		  .style("fill",function (d,i) { return getColor(d) })
-		  .on("mouseover",function(d,i) {
-				displayDetails(d,i);
-				});
+		.append("path")
+		.attr("d", path)
+		.attr("id", function(d, i) { return 'p_'+countryNames[d.id]})
+		.attr('name', function(d, i) {return countryNames[d.id]})
+		.attr({
+				'stroke' : 'black',
+				'stroke-width':'0.25px'})
+		.style("fill",function (d,i) { return getColor(d) })
+		.on("mouseover",function(d,i) {
+			displayDetails(d,i);
+			highlightCountry(d, i);
+		})
+		.on("mouseout", handleMouseOut);
 	document.getElementById("min").innerHTML = " Minimum<br/>"+Math.round(minValues[category])+" minutes";
 	document.getElementById("max").innerHTML = " Maximum<br/>"+Math.round(maxValues[category])+" minutes";
+}
 
+function highlightCountry(d, i){
+	country = countryNames[d.id];
+	country_path = g.select("#p_"+country);
+	country_path.attr("stroke",'white').attr("stroke-width",  "0.75px");
+}
+
+function handleMouseOut(d, i){
+	country = countryNames[d.id];
+	country_path = g.select("#p_"+country);
+	country_path.attr("stroke",'black').attr("stroke-width",  "0.25px");
 }
 
 function displayDetails(d,i){
