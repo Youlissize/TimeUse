@@ -39,7 +39,7 @@
 				<svg height="30" width="300">
 				 <defs>
 				   <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="0%">
-					 <stop offset="0%" style="stop-color:rgb(0,200,0);stop-opacity:1" />
+					 <stop offset="0%" style="stop-color:rgb(180,255,255);stop-opacity:1" />
 					 <stop offset="100%" style="stop-color:rgb(0,0,255);stop-opacity:1" />
 				   </linearGradient>
 				 </defs>
@@ -245,7 +245,7 @@ d3.tsv("world-110m-country-names.tsv",function(error,rows){
 
 var colorScale = d3.scale.linear()
   .domain([0, 100])
-  .range([d3.rgb(0,200,0),"blue"]);
+  .range([d3.rgb(180,255,255),"blue"]);
 
 
 function getColor(d) {
@@ -282,7 +282,7 @@ function getColor(d) {
 			}
 		}
 
-	return(d3.rgb(220,200,200)); //No data found
+	return(d3.rgb(100,100,100)); //No data found
 }
 // load and display the World
 var map;
