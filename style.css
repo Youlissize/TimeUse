@@ -1,6 +1,6 @@
 body {
-	background-color: black;
-	color: white;
+	background-color:white !important;/*rgb(134, 134, 134); */
+	color: black !important;
 	text-align: center;
 }
 
@@ -10,11 +10,13 @@ body {
 	align-items:flex-start;
 }
 
-path {
+/* path {
   stroke: black;
   stroke-width: 0.25px;
+} */
+#details {
+	margin-left: 30px;
 }
-
 
 .topBar {
 	display: flex;
@@ -74,4 +76,40 @@ path {
 .legendcat{
 	margin-left: 10px;
 	font-size: 13px;
+}
+
+div.tooltip {	
+    position: absolute;			
+	text-align: center;
+	color: black;
+    width: 150px;					
+    height: auto;					
+    padding: 2px;				
+    font: 12px sans-serif;		
+    background: lightsteelblue;	
+    border: 0px;		
+    border-radius: 8px;			
+    pointer-events: none;			
+}
+
+/* radar chart CSS */
+.radar-chart .area {
+	fill-opacity: 0.7;
+}
+.radar-chart.focus .area {
+	fill-opacity: 0.3;
+}
+.radar-chart.focus .area.focused {
+	fill-opacity: 0.9;
+}
+.area.germany, .germany .circle {
+	fill: #FFD700;
+	stroke: none;
+}
+.area.argentina, .argentina .circle {
+	fill: #ADD8E6;
+	stroke: none;
+}
+.radar-chart .axis .legend {
+	color : white;
 }
