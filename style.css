@@ -1,6 +1,6 @@
 body {
-	background-color: rgb(134, 134, 134);
-	color: white;
+	background-color:white !important;/*rgb(134, 134, 134); */
+	color: black !important;
 	text-align: center;
 }
 
@@ -77,4 +77,7 @@ div.tooltip {
 .area.argentina, .argentina .circle {
 	fill: #ADD8E6;
 	stroke: none;
+}
+.radar-chart .axis .legend {
+	color : white;
 }
