@@ -412,29 +412,6 @@ function updateMap() {
 		//text =+ "<div>"+legend[i]+"</div>";
 	}
 }
-/*
-var menChart = d3.select("#menChart"),
-	width = menChart.attr("width") * 1,
-	height = menChart.attr("height") * 1,
-	radius = Math.min(width, height) / 2,
-	g = menChart.append("g").attr("transform", "translate(" + 100 + "," + 100 + ")");
-
-var color = d3.scale.category20();
-var menPie = d3.layout.pie();
-var marc = d3.svg.arc()
-			.innerRadius(0)
-			.outerRadius(radius);
-var marcs = g.selectAll("marc")
-			.data(menPie([]))
-			.enter()
-			.append("g")
-			.attr("class", "marc");
-marcs.enter().append("path")
-		.attr("fill", function(d, i) {
-			return color(i);
-		})
-		.attr("d", marc);*/
-
 
 
 function displayDetails(d,i){
@@ -467,10 +444,14 @@ function displayDetails(d,i){
 				womendata.push(femaleData[country][subcategory]);
 			}
 		}
+		document.getElementById("mgender").innerHTML = "Men<br/>"+totalMen+" min";
+		document.getElementById("wgender").innerHTML = "Women<br/>"+totalWomen+" min";
+	}
+	else {
+		document.getElementById("mgender").innerHTML = "Men<br/>"+"No Data";
+		document.getElementById("wgender").innerHTML = "Women<br/>"+"No Data";
 	}
 
-	document.getElementById("mgender").innerHTML = "Men<br/>"+totalMen+" min";
-	document.getElementById("wgender").innerHTML = "Women<br/>"+totalWomen+" min";
 
 	//Clear
 	d3.select("#menChart").remove();
