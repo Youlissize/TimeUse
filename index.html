@@ -57,7 +57,7 @@
 			<p></p>
 		</div>
 		<div id="details">
-			
+
 			<!-- Put your mouse on a country<br/>
 			to see details about the choosen category -->
 		</div>
@@ -126,10 +126,10 @@ var path = d3.geo.path()
 
 var g = svg.append("g");
 
-var tooltip = d3.select("body").append("div") 
-        .attr("class", "tooltip")       
+var tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
 		.style("opacity", 0);
-		
+
 
 // Import data
 function toMinute(hour) {
@@ -449,7 +449,7 @@ RadarChart.defaultConfig.factorLegend = 1;
 
 data_final = 	[
 					{className: 'germany',
-					axes: 
+					axes:
 						[
 
 						]
@@ -466,10 +466,10 @@ var data_test = [
 				{
 					className: 'germany', // optional can be used for styling
 					axes: [
-					{axis: "strength", value: 13}, 
-					{axis: "intelligence", value: 6}, 
-					{axis: "charisma", value: 5},  
-					{axis: "dexterity", value: 9},  
+					{axis: "strength", value: 13},
+					{axis: "intelligence", value: 6},
+					{axis: "charisma", value: 5},
+					{axis: "dexterity", value: 9},
 					{axis: "luck", value: 2}
 					]
 				},
@@ -546,7 +546,7 @@ function updateRadarChart(d, i){
 			};
 		});
 		}
-	
+
 	chart_svg.remove('g')
 	chart_svg = d3.select('#details_chart').append('svg')
 			.attr('width', cfg.w + cfg.w + 50)
@@ -557,7 +557,7 @@ function updateRadarChart(d, i){
 	// console.log(updateDataset());
 	chart_svg.append('g').classed('single', 1).datum(updateDataset()).call(chart);
 	//g.select('#id_radar_chart').datum(updateDataset).call(chart);
-	
+
 	//chart_svg.append('g').classed('single', 1).datum(randomDataset()).call(chart);
 
 
@@ -668,16 +668,16 @@ function displayDetails(d,i){
 			    return color(i);
 			})
 			.attr("d", warc);
-	
+
 	var text = get_text(d, i);
 	console.log('Here is the text')
 	console.log(text);
-	tooltip.transition()    
-	.duration(200)    
-	.style("opacity", .9);    
-	tooltip.html(text)  
-	.style("left", (d3.event.pageX) + "px")   
-	.style("top", (d3.event.pageY - 28) + "px"); 
+	tooltip.transition()
+	.duration(200)
+	.style("opacity", .9);
+	tooltip.html(text)
+	.style("left", (d3.event.pageX) + "px")
+	.style("top", (d3.event.pageY - 28) + "px");
 
 	//document.getElementById("details").innerHTML = text;
 }
@@ -713,7 +713,7 @@ function get_text(d, i){
 			for(ind in metaCategories[category]){
 				subcategory = metaCategories[category][ind];
 				totalMen += maleData[country][subcategory];
-				text += subcategory + " : "+ maleData[country][subcategory]+" min <br/>";
+				text += longNames[subcategory] + " : "+ maleData[country][subcategory]+" min <br/>";
 			}
 			text += "Total : "+totalMen+" min<br/>"
 		}
@@ -725,7 +725,7 @@ function get_text(d, i){
 			for(ind in metaCategories[category]){
 				subcategory = metaCategories[category][ind];
 				totalWomen += femaleData[country][subcategory];
-				text += subcategory + " : "+ femaleData[country][subcategory]+" min <br/>";
+				text += longNames[subcategory] + " : "+ femaleData[country][subcategory]+" min <br/>";
 			}
 			text += "Total : "+totalWomen+" min<br/>"
 		}
