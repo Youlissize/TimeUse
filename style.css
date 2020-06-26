@@ -51,7 +51,7 @@ body {
 }
 
 #country {
-	margin: 40px;
+	margin: 5px;
 	font-size: 20px;
 }
 
@@ -61,7 +61,7 @@ body {
 	justify-content: space-around;
 }
 .gender{
-	margin: 20px;
+	margin: 0px;
 }
 .legendLigne{
 	display: flex;
@@ -72,6 +72,7 @@ body {
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
+	margin-bottom: 100px;
 }
 .legendcat{
 	margin-left: 10px;

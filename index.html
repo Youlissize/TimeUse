@@ -57,43 +57,38 @@
 			<p></p>
 		</div>
 		<div id="details">
+			
 			<!-- Put your mouse on a country<br/>
 			to see details about the choosen category -->
 		</div>
-		<div id="details_chart">
-
-		</div>
-	</div>
-
-			<div class="pieChart">
-				<div id="leftChart">
-					<div class="gender" id="mgender">
-						Men
-					</div>
-					<div id="menChartContainer">
-						<svg id="menChart" width="200" height="200">
-
-						</svg>
-					</div>
-
+		<div id="charts">
+		<div id="country"></div>
+		<div id="details_chart"></div>
+		<div class="pieChart">
+			<div id="leftChart">
+				<div class="gender" id="mgender">
+					Men
 				</div>
-				<div id="rightChart">
-					<div class="gender" id="wgender">
-						Women
-					</div>
-					<div id="womenChartContainer">
-						<svg id="womenChart" width="200" height="200">
-
-						</svg>
-					</div>
+				<div id="menChartContainer">
+					<svg id="menChart" width="200" height="200">
+					</svg>
 				</div>
-
 			</div>
-			<div id="legend" class="legend">
 
+			<div id="rightChart">
+				<div class="gender" id="wgender">
+					Women
+				</div>
+				<div id="womenChartContainer">
+					<svg id="womenChart" width="200" height="200">
+					</svg>
+				</div>
 			</div>
 		</div>
+		<div id="legend" class="legend"></div>
 	</div>
+	</div>
+
 
 
 
@@ -409,11 +404,14 @@ d3.json("world-110m2.json", function(error, topology) {
 function updateMap() {
 	var category = document.getElementById("categorySelect").value;
 	colorScale.domain([minValues[category],maxValues[category]]);
+	d3.json("world-110m2.json", function(error, topology) {
+		map = g.selectAll("path")
+				.data(topojson.object(topology, topology.objects.countries).geometries)});
 	map.exit().remove();
 	map.enter()
 		.append("path")
 		.attr("d", path)
-		.attr("id", function(d, i) { return 'p_'+countryNames[d.id]})
+		.attr("id", function(d, i) { return ('p_'+countryNames[d.id]).replace(/\s/g, '')})
 		.attr('name', function(d, i) {return countryNames[d.id]})
 		.attr({
 				'stroke' : 'black',
@@ -427,14 +425,25 @@ function updateMap() {
 		.on("mouseout", handleMouseOut);
 	document.getElementById("min").innerHTML = " Minimum<br/>"+Math.round(minValues[category])+" minutes";
 	document.getElementById("max").innerHTML = " Maximum<br/>"+Math.round(maxValues[category])+" minutes";
+
+	//Update legend
+	var legendDiv = document.getElementById("legend");
+	legendDiv.innerHTML = ""; //clear
+
+	for(var i=0; i<metaCategories[category].length; i++){
+		var svg = "<svg height='15' width='15'><rect width='15' height='15' fill='"+color(i)+"' /></svg>"
+
+		legendDiv.innerHTML += "<div class='legendLigne'>"+"<div>"+svg+"</div>"+"<div class='legendcat'> "+longNames[metaCategories[category][i]]+"</div>"+"</div>";
+		//text =+ "<div>"+legend[i]+"</div>";
+	}
 }
 
 // RADAR CHART TEST CODE
 
 // Radar chart initialization
-RadarChart.defaultConfig.radius = 4;
-RadarChart.defaultConfig.w = 400;
-RadarChart.defaultConfig.h = 400;
+RadarChart.defaultConfig.radius = 2;
+RadarChart.defaultConfig.w = 350;
+RadarChart.defaultConfig.h = 350;
 RadarChart.defaultConfig.factorLegend = 1;
 
 
@@ -472,6 +481,7 @@ var cfg = chart.config(); // retrieve default config
 var chart_svg = d3.select('#details_chart').append('svg')
 			.attr('width', cfg.w + cfg.w + 50)
 			.attr('height', cfg.h + cfg.h / 4)
+			.attr('transform', 'translate(100, 100)')
 			.attr('id', 'id_radar_chart');
 chart_svg.append('g').classed('single', 1).datum(randomDataset()).call(chart);
 
@@ -486,35 +496,6 @@ function randomDataset() {
 		};
 	});
 }
-// // many radars
-// chart.config({w: cfg.w / 4, h: cfg.h / 4, axisText: false, levels: 0, circles: false});
-// cfg = chart.config();
-// function render() {
-// 	var game = svg.selectAll('g.game').data(
-//     [
-//       randomDataset(),
-//       randomDataset(),
-//       randomDataset(),
-//       randomDataset()
-//     ]
-//   );
-//   game.enter().append('g').classed('game', 1);
-//   game
-//     .attr('transform', function(d, i) { return 'translate('+((cfg.w * 4) + 50 + (i * cfg.w))+','+ (cfg.h * 1.3) +')'; })
-//     .call(chart);
-
-//   setTimeout(render, 1000);
-
-// }
-
-// function radarCartTooltip(d, i){
-// 	tooltip.transition()    
-//             .duration(200)    
-//             .style("opacity", .9);    
-//             tooltip.html(d.properties.NAME)  
-//             .style("left", (d3.event.pageX) + "px")   
-//             .style("top", (d3.event.pageY - 28) + "px");  
-// }
 
 function updateRadarChart(d, i){
 	country = countryNames[d.id];
@@ -551,8 +532,8 @@ function updateRadarChart(d, i){
 			category = keys[i];
 			cat_counts[category] = abs_cat_counts[category]/total;
 		}
-		console.log('cat_counts');
-		console.log(cat_counts);
+		// console.log('cat_counts');
+		// console.log(cat_counts);
 
 	}
 	function updateDataset() {
@@ -570,9 +551,10 @@ function updateRadarChart(d, i){
 	chart_svg = d3.select('#details_chart').append('svg')
 			.attr('width', cfg.w + cfg.w + 50)
 			.attr('height', cfg.h + cfg.h / 4)
+			.attr('transform', 'translate(100, 0)')
 			.attr('id', 'id_radar_chart');
-	console.log('Updated data');
-	console.log(updateDataset());
+	// console.log('Updated data');
+	// console.log(updateDataset());
 	chart_svg.append('g').classed('single', 1).datum(updateDataset()).call(chart);
 	//g.select('#id_radar_chart').datum(updateDataset).call(chart);
 	
@@ -583,12 +565,14 @@ function updateRadarChart(d, i){
 
 function highlightCountry(d, i){
 	country = countryNames[d.id];
+	country = country.replace(/\s/g, '');
 	country_path = g.select("#p_"+country);
 	country_path.attr("stroke",'white').attr("stroke-width",  "0.75px");
 }
 
 function handleMouseOut(d, i){
-	country = countryNames[d.id];
+	console.log('handleMouseOut event!');
+	country = countryNames[d.id].replace(/\s/g, '');
 	country_path = g.select("#p_"+country);
 	country_path.attr("stroke",'black').attr("stroke-width",  "0.25px");
 }
@@ -684,12 +668,13 @@ function displayDetails(d,i){
 			    return color(i);
 			})
 			.attr("d", warc);
-
-	else{text += "No data";}
 	
+	var text = get_text(d, i);
+	console.log('Here is the text')
+	console.log(text);
 	tooltip.transition()    
-            .duration(200)    
-            .style("opacity", .9);    
+	.duration(200)    
+	.style("opacity", .9);    
 	tooltip.html(text)  
 	.style("left", (d3.event.pageX) + "px")   
 	.style("top", (d3.event.pageY - 28) + "px"); 
@@ -711,6 +696,51 @@ var zoom = d3.behavior.zoom()
 svg.call(zoom)
 
 //window.setTimeout(updateMap(),7000);
+
+function get_text(d, i){
+	var text = "";
+	country = countryNames[d.id];
+	text += "<b>"+country+"</b>";
+	text += "<br/>";
+	if ((country in maleData) || (country in femaleData))  {
+		var category = document.getElementById("categorySelect").value;
+
+		var totalMen = 0;
+		var totalWomen = 0;
+		var subcategory;
+		text +="<br/>Men :<br/>"
+		if(country in maleData){
+			for(ind in metaCategories[category]){
+				subcategory = metaCategories[category][ind];
+				totalMen += maleData[country][subcategory];
+				text += subcategory + " : "+ maleData[country][subcategory]+" min <br/>";
+			}
+			text += "Total : "+totalMen+" min<br/>"
+		}
+		else {
+			text += "No Data for Men"
+		}
+		text +="<br/>Women :<br/>"
+		if(country in femaleData){
+			for(ind in metaCategories[category]){
+				subcategory = metaCategories[category][ind];
+				totalWomen += femaleData[country][subcategory];
+				text += subcategory + " : "+ femaleData[country][subcategory]+" min <br/>";
+			}
+			text += "Total : "+totalWomen+" min<br/>"
+		}
+		else {
+			text += "No Data for women";
+		}
+
+
+	}
+
+	else{text += "No data";}
+
+	return text
+
+}
 
 </script>
 </body>
